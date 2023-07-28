@@ -21,7 +21,6 @@
     </div>
   </div>
   <div v-else class="task_list">
-    {{ tasks }}
     <div class="add_task_btn">
       <button @click="openModal(status, index)">
         +<span class="text-success">課題の追加</span>
