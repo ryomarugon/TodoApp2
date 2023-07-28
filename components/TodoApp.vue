@@ -96,7 +96,7 @@ const roundColor = computed(() => {
   return taskStatusColors[index];
 });
 //Set filteredTasks when it was reset
-filteredTasks.value = tasks_group.map((tasks) => tasks.slice());
+filteredTasks.value = tasks_group.value.map((tasks) => tasks.slice());
 console.log(filteredTasks.value);
 
 function openModal(status, index) {
@@ -116,7 +116,7 @@ function filterTags(selectedTags) {
   } else {
     isFiltering.value = true;
     console.log(isFiltering);
-    filteredTasks.value = tasks_group.map((tasks) =>
+    filteredTasks.value = tasks_group.value.map((tasks) =>
       tasks.filter((task) => {
         return selectedTags.every((tag) => task.tags.includes(tag));
       })
@@ -134,7 +134,7 @@ function filterTags(selectedTags) {
 // There is $emit element in handleSubmit function of Modal component
 function addTask(task, index) {
   console.log(tasks_group[index]);
-  tasks_group[index].unshift(task);
+  tasks_group.value[index].unshift(task);
   console.log(filteredTags);
   if (filteredTags.value.every((tag) => task.tags.includes(tag))) {
     filteredTasks.value[index].unshift(task);
