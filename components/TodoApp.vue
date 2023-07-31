@@ -2,11 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="tag_filter">
-        <TagFilter
-          :tagHistory="tagHistory"
-          :tasks="tasks_group"
-          @filterTags="filterTags"
-        />
+        <TagFilter :tagHistory="tagHistory" @filterTags="filterTags" />
       </div>
       <div class="task_list_row">
         <div class="col" v-for="(tasks, index) in tasks_group" :key="index">
@@ -53,101 +49,118 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts">
+import { Component, Vue } from "nuxt-property-decorator";
 import TagFilter from "./TagFilter.vue";
 import TaskList from "./TaskList.vue";
 import Modal from "./Modal.vue";
-import {ref, computed } from "vue";
+import { ref, computed } from "vue";
 
-const status = ref("");
-const taskIndex = ref("");
-const tasks_status_mark = ref([]);
-const statusList = ["未対応", "処理中", "レビュー中", "完了"];
-const showModal = ref(false);
-const tasks_group = ref([
-  // dummy data for demonstrating draggable tags
-  [
-    { name: "test", tags: ["tag1", "tag2"] },
-    { name: "test2", tags: ["tag3", "tag4"] },
-  ],
-  [
-    { name: "test", tags: ["tag1", "tag2"] },
-    { name: "test2", tags: ["tag3", "tag4"] },
-  ],
-  [
-    { name: "test", tags: ["tag1", "tag2"] },
-    { name: "test2", tags: ["tag3", "tag4"] },
-  ],
-  [
-    { name: "test", tags: ["tag1", "tag2"] },
-    { name: "test2", tags: ["tag3", "tag4"] },
-  ],
-]);
-const isFiltering = ref(false);
-const filteredTags = ref([]);
-const filteredTasks = ref([]);
-const selectedStatus = ref("");
-const tagHistory = ref(["tag1", "tag2", "tag3", "tag4"]);
-const taskStatusColors = ref(["#ED8077", "#4487C5", "#5EB5A6", "#A1AF2F"]);
+@Component({
+  components: {
+    TagFilter,
+    TaskList,
+    Modal,
+  },
+})
+export default class TodoApp extends Vue {
+  status: string = "";
+  taskIndex: number = -1;
+  // tagHistory: string[] = ["tag1", "tag2", "tag3","tag4"]; // 初期値を設定
+  tasks_status_mark: string[] = [];
+  statusList = ["未対応", "処理中", "レビュー中", "完了"];
+  showModal: boolean = false;
+  tasks_group = [
+    // dummy data for demonstrating draggable tags
+    [
+      { name: "test", tags: ["tag1", "tag2"] },
+      { name: "test2", tags: ["tag3", "tag4"] },
+    ],
+    [
+      { name: "test", tags: ["tag1", "tag2"] },
+      { name: "test2", tags: ["tag3", "tag4"] },
+    ],
+    [
+      { name: "test", tags: ["tag1", "tag2"] },
+      { name: "test2", tags: ["tag3", "tag4"] },
+    ],
+    [
+      { name: "test", tags: ["tag1", "tag2"] },
+      { name: "test2", tags: ["tag3", "tag4"] },
+    ],
+  ];
+  isFiltering = false;
+  filteredTags: string[] = [];
+  filteredTasks!: { name: string; tags: string[] }[][];
+  selectedStatus = "";
+  tagHistory = ["tag1", "tag2", "tag3", "tag4"];
+  taskStatusColors = ["#ED8077", "#4487C5", "#5EB5A6", "#A1AF2F"];
 
-const roundColor = computed(() => {
-  // 現在のindexの値を取得するため、.valueを使う
-  const index = status.value;
-  return taskStatusColors[index];
-});
-//Set filteredTasks when it was reset
-filteredTasks.value = tasks_group.value.map((tasks) => tasks.slice());
-console.log(filteredTasks.value);
-
-function openModal(status, index) {
-  taskIndex.value = index;
-  selectedStatus.value = status;
-  showModal.value = true;
-  event.stopPropagation();
-}
-
-function filterTags(selectedTags) {
-  console.log("selected tags: ", selectedTags);
-  if (selectedTags.length === 0 || selectedTags.includes("未選択")) {
-    isFiltering.value = false;
-    console.log(tasks_group);
-    console.log(filteredTags);
-    console.log(isFiltering);
-  } else {
-    isFiltering.value = true;
-    console.log(isFiltering);
-    filteredTasks.value = tasks_group.value.map((tasks) =>
-      tasks.filter((task) => {
-        return selectedTags.every((tag) => task.tags.includes(tag));
-      })
-    );
-    console.log(filteredTasks);
+  get roundColor(): string {
+    // 現在のindexの値を取得するため、.valueを使う
+    const index = Number(this.status);
+    return this.taskStatusColors[index];
   }
-  filteredTags.value = selectedTags;
-  if (showModal.value) {
-    const index = taskIndex;
-    addTask(selectedTags.value, index);
-    closeModal();
-  }
-}
 
-// There is $emit element in handleSubmit function of Modal component
-function addTask(task, index) {
-  console.log(tasks_group[index]);
-  tasks_group.value[index].unshift(task);
-  console.log(filteredTags);
-  if (filteredTags.value.every((tag) => task.tags.includes(tag))) {
-    filteredTasks.value[index].unshift(task);
+  //Set filteredTasks when it was reset
+  created() {
+    this.filteredTasks = this.tasks_group.map((tasks) => tasks.slice());
+    console.log(this.filteredTasks);
   }
-}
 
-function closeModal() {
-  showModal.value = false;
-  selectedStatus.value = "";
-}
-function updateTasks(index, newList) {
-  tasks_group[index] = newList;
-  // this.$set(this.tasks_group, index, newList);
+  openModal(status: string, index: number) {
+    this.taskIndex = index;
+    this.selectedStatus = status;
+    this.showModal = true;
+    // event.stopPropagation();
+  }
+
+  filterTags(selectedTags: string[]) {
+    console.log("selected tags: ", selectedTags);
+    if (selectedTags.length === 0 || selectedTags.includes("未選択")) {
+      this.isFiltering = false;
+      console.log(this.tasks_group);
+      console.log(this.filteredTags);
+      console.log(this.isFiltering);
+    } else {
+      this.isFiltering = true;
+      console.log(this.isFiltering);
+      this.filteredTasks = this.tasks_group.map((tasks) =>
+        tasks.filter((task) => {
+          return selectedTags.every((tag) => task.tags.includes(tag));
+        })
+      );
+      console.log(this.filteredTasks);
+    }
+    this.filteredTags = selectedTags;
+    if (this.showModal) {
+      const index = this.taskIndex;
+      const newTask = {
+        name: "", // ここでselectedTagsを文字列に変換してnameプロパティに代入
+        tags: selectedTags, // tagsプロパティには空の配列を代入
+      };
+      this.addTask(newTask, index);
+      this.closeModal();
+    }
+  }
+
+  // There is $emit element in handleSubmit function of Modal component
+  addTask(task: { name: string; tags: string[] }, index: number): void {
+    console.log(this.tasks_group[index]);
+    this.tasks_group[index].unshift(task);
+    console.log(this.filteredTags);
+    if (this.filteredTags.every((tag) => task.tags.includes(tag))) {
+      this.filteredTasks[index].unshift(task);
+    }
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedStatus = "";
+  }
+  updateTasks(index: number, newList: string[]) {
+    this.$set(this.tasks_group, index, newList);
+  }
 }
 </script>
 

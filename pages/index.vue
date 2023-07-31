@@ -5,20 +5,22 @@
   </div>
 </template>
 
-<script>
-import Header from "@/components/Header.vue";
-import TodoApp from "@/components/TodoApp.vue";
-import TaskList from "@/components/TaskList.vue";
-import Modal from "@/components/Modal.vue";
+<script lang="ts">
+import { Component, Vue } from 'nuxt-property-decorator';
+import Header from "../components/Header.vue";
+import TodoApp from "../components/TodoApp.vue";
+import TaskList from "../components/TaskList.vue";
+import Modal from "../components/Modal.vue";
 
-export default {
+@Component({
   components: {
     Header,
     TodoApp,
     TaskList,
     Modal,
-  },
-};
+  }
+})
+export default class extends Vue {};
 </script>
 
 <style>

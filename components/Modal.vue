@@ -61,130 +61,114 @@
   </div>
 </template>
 
-<script setup>
-import TaskList from "./TaskList.vue";
-import { ref, defineProps, defineEmits, computed, watch, onBeforeUnmount, onMounted } from "vue";
+<script lang="ts">
+import { Vue, Prop, Watch, Emit, Ref, Component } from "nuxt-property-decorator";
 
-const props = defineProps({
-  status: {
-    type: String,
-    required: true,
-  },
-  tagHistory: {
-    type: Array,
-    required: true,
-  },
-  index: {
-    type: Number,
-    required: true,
-  },
-  showModal: {
-    type: Boolean,
-    required: true,
-  },
-});
+@Component
+export default class Modal extends Vue {
+  @Prop({ type: String, required: true }) status!: string;
+  @Prop({ type: Array, required: true }) tagHistory!: string[];
+  @Prop({ type: Number, required: true }) index!: Number;
+  @Prop({ type: Boolean, required: true }) showModal!: Boolean;
 
-const emit = defineEmits(["addTask", "closeModal"]);
-
-const form = {
-  task: "",
-  tag: [],
-  status: props.status.value,
-};
-
-const inputTagForm = ref(false);
-const selectTagList = ref(false);
-const newTag = ref(""); // Data property for restore new tag
-const selectedTags = ref([]);
-const addTagButtonText = ref("+");
-const sameTagError = ref("");
-
-//computed
-const addTagHistory =  computed(() => {
-  return props.tagHistory.filter((tag) => tag !== "未選択");
-});
-
-watch(
-  props.tagHistory,
-  (newVal) => {
-    selectTagList.value = newVal.length > 0;
-  },
-  {
-    immediate: true,
-  }
-);
-
-function addTag($event) {
-  $event.preventDefault();
-  addTagButtonText.value = addTagButtonText.value === "+" ? "−" : "+"; // Switch button text + and -
-  inputTagForm.value = !inputTagForm.value;
-  // Switch display and hiden inputTagform element(including select box and input tag to create newTag)
-  if (sameTagError.value) {
-    sameTagError.value = "";
-  }
-}
-function createTag($event) {
-  $event.preventDefault();
-  if (!props.tagHistory.includes(this.newTag)) {
-    props.tagHistory.push(this.newTag);
-    console.log(props.tagHistory);
-    newTag.value = ""; // Reset the value of newTag input field
-    sameTagError.value = "";
-    selectTagList.value = true;
-  } else {
-    sameTagError.value = "既に登録されているタグです";
-    newTag.value = "";
-  }
-}
-function toggleAddTag(tag) {
-  const index = selectedTags.value.indexOf(tag);
-  console.log(index);
-  if (index !== -1) {
-    selectedTags.value.splice(index, 1); // Remove checked tags from selectTags Array
-  } else {
-    selectedTags.value.push(tag); // Add checked tags to selectTags Array
-  }
-}
-function isSelected(tag) {
-  if (inputTagForm.value === true) {
-    return selectedTags.value.includes(tag);
-  }
-}
-
-function handleSubmit() {
-  const formData = {
-    name: form.task,
-    tags: selectedTags.value,
+  //data
+  form = {
+    task: "",
+    tag: [],
+    status: this.status,
   };
 
-  // it means name of formData(input name:task) is required element
-  if (formData.name !== "") {
-    emit("addTask", formData, props.index);
-    emit("closeModal");
+  inputTagForm = false;
+  selectTagList = false;
+  newTag = ""; // Data property for restore new tag
+  selectedTags: string[] = [];
+  addTagButtonText = "+";
+  sameTagError = "";
+
+  //computed
+  get addTagHistory(): string[] {
+    return this.tagHistory.filter((tag) => tag !== "未選択");
+  }
+
+  @Watch("tagHistory", { immediate: true })
+  onChangeTagHistory(newVal: string[]): void {
+    this.selectTagList = newVal.length > 0;
+  }
+
+  addTag($event: any) {
+    $event.preventDefault();
+    this.addTagButtonText = this.addTagButtonText === "+" ? "−" : "+"; // Switch button text + and -
+    this.inputTagForm = !this.inputTagForm;
+    // Switch display and hiden inputTagform element(including select box and input tag to create newTag)
+    if (this.sameTagError) {
+      this.sameTagError = "";
+    }
+  }
+  createTag($event: any): void {
+    $event.preventDefault();
+    if (!this.tagHistory.includes(this.newTag)) {
+      // this.tagHistory.push(this.newTag);
+      this.$emit("update:tagHistory",[...this.tagHistory, this.newTag]);
+      console.log(this.tagHistory);
+      this.newTag = ""; // Reset the value of newTag input field
+      this.sameTagError = "";
+      this.selectTagList = true;
+    } else {
+      this.sameTagError = "既に登録されているタグです";
+      this.newTag = "";
+    }
+  }
+
+
+
+  toggleAddTag(tag: string) {
+    const index = this.selectedTags.indexOf(tag);
+    console.log(index);
+    if (index !== -1) {
+      this.selectedTags.splice(index, 1); // Remove checked tags from selectTags Array
+    } else {
+      this.selectedTags.push(tag); // Add checked tags to selectTags Array
+    }
+  }
+
+  isSelected(tag: string) {
+    if (this.inputTagForm === true) {
+      return this.selectedTags.includes(tag);
+    }
+  }
+
+  handleSubmit() {
+    const formData = {
+      name: this.form.task,
+      tags: this.selectedTags,
+    };
+    if (formData.name !== "") {
+      this.$emit("addTask", formData, this.index);
+      this.$emit("closeModal");
+    }
+  }
+
+  @Ref() modalWrap!: HTMLElement;
+  // If user clicks modal oudside modal_wrap, closeModal function will be called
+  handleOutsideClick(event: any) {
+    if (this.showModal == true && !this.modalWrap.contains(event.target)) {
+      this.closeModal();
+    }
+  }
+  closeModal() {
+    this.$emit("closeModal");
+  }
+
+  onMounted() {
+    // Add addEventListener to outside elements of modal_wrap
+    document.addEventListener("click", this.handleOutsideClick);
+  }
+
+  onBeforeUnmount() {
+    // クリックイベントリスナーを解除
+    document.removeEventListener("click", this.handleOutsideClick);
   }
 }
-
-const modalWrap= ref(null);
-
-// If user clicks modal oudside modal_wrap, closeModal function will be called
-function handleOutsideClick(event) {
-  if (props.showModal == true && !modalWrap.value.contains(event.target)) {
-    closeModal();
-  }
-}
-function closeModal() {
-  emit("closeModal");
-}
-
-onMounted(()=>{
-  // Add addEventListener to outside elements of modal_wrap
-  document.addEventListener("click", handleOutsideClick);
-});
-
-onBeforeUnmount(()=> {
-  // クリックイベントリスナーを解除
-  document.removeEventListener("click", handleOutsideClick);
-});
 </script>
 
 <style scoped>
