@@ -2,7 +2,11 @@
   <div class="container">
     <div class="row">
       <div class="tag_filter">
-        <TagFilter :tagHistory="tagHistory" @filterTags="filterTags" @addOptionUnselected="addOptionUnselected" />
+        <TagFilter
+          :tagHistory="tagHistory"
+          @filterTags="filterTags"
+          @addOptionUnselected="addOptionUnselected"
+        />
       </div>
       <div class="task_list_row">
         <div class="col" v-for="(tasks, index) in tasks_group" :key="index">
@@ -51,11 +55,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "nuxt-property-decorator";
+import {
+  Component,
+  Vue,
+  Watch,
+} from "nuxt-property-decorator";
 import TagFilter from "./TagFilter.vue";
 import TaskList from "./TaskList.vue";
 import Modal from "./Modal.vue";
-import { ref, computed } from "vue";
 
 @Component({
   components: {
@@ -91,7 +98,9 @@ export default class TodoApp extends Vue {
   ];
   isFiltering = false;
   filteredTags: string[] = [];
-  filteredTasks!: { name: string; tags: string[] }[][];
+  filteredTasks: { name: string; tags: string[] }[][] = this.tasks_group.map(
+    (tasks) => tasks.slice()
+  );
   selectedStatus = "";
   tagHistory = ["tag1", "tag2", "tag3", "tag4"];
   taskStatusColors = ["#ED8077", "#4487C5", "#5EB5A6", "#A1AF2F"];
@@ -103,9 +112,9 @@ export default class TodoApp extends Vue {
     return this.taskStatusColors[index];
   }
 
-  //Set filteredTasks when it was reset
-  created() {
-    this.filteredTasks = this.tasks_group.map((tasks) => tasks.slice());
+  @Watch("filteredTasks", { immediate: false, deep: true })
+  handler(newFilteredTasks: { name: string; tags: string[] }[][]) {
+    console.log(newFilteredTasks);
   }
 
   openModal(status: string, index: number) {
@@ -124,12 +133,13 @@ export default class TodoApp extends Vue {
           return selectedTags.every((tag) => task.tags.includes(tag));
         })
       );
+      // this.$set(this, "filteredTasks", this.filteredTasks);
     }
     this.filteredTags = selectedTags;
     if (this.showModal) {
       const index = this.taskIndex;
       const newTask = {
-        name: "", // ここでselectedTagsを文字列に変換してnameプロパティに代入
+        name: "",
         tags: selectedTags, // tagsプロパティには空の配列を代入
       };
       this.addTask(newTask, index);
@@ -137,26 +147,20 @@ export default class TodoApp extends Vue {
     }
   }
   // Add option "未選択" to {{ option }} in TagFilter component
-  addOptionUnselected(option:string){
+  addOptionUnselected(option: string) {
     this.tagHistory.unshift(option);
   }
 
-  //Register new tag to tagHistory 
-  addNewTag(tag:string){
+  //Register new tag to tagHistory
+  addNewTag(tag: string) {
     this.tagHistory.push(tag);
   }
 
   // There is $emit element in handleSubmit function of Modal component
   addTask(task: { name: string; tags: string[] }, index: number): void {
     this.tasks_group[index].unshift(task);
-    if (
-      this.isFiltering &&
-      this.filteredTags.every((tag) => task.tags.includes(tag))
-    ) {
+    if (this.filteredTags.every((tag) => task.tags.includes(tag))) {
       this.filteredTasks[index].unshift(task);
-      this.filteredTasks = this.filteredTasks.map((tasks, i) =>
-        i === index ? [...tasks, task] : tasks
-      );
     }
   }
 

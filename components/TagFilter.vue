@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Emit, Component } from "nuxt-property-decorator";
+import { Vue, Prop,Component } from "nuxt-property-decorator";
 
 @Component
 export default class TagFilter extends Vue {
@@ -112,12 +112,12 @@ export default class TagFilter extends Vue {
   }
 
   //emit
-  @Emit("filterTags")
   filteringTags() {
-    this.showFilteringEl = !this.showFilteringEl;
-    return [...this.filteredTags];
-  }
+  this.$emit("filterTags", this.filteredTags);
+  this.showFilteringEl = !this.showFilteringEl;
 }
+}
+
 </script>
 <style scoped>
 .container,
