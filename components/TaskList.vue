@@ -71,7 +71,6 @@ export default class TaskList extends Vue {
     this.$emit("openModal", status, index);
   }
   updateTasks(newList: any) {
-    console.log(newList);
     this.$emit("updateTasks", newList.slice());
   }
 }
