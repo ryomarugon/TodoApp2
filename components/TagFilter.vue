@@ -41,90 +41,82 @@
   </div>
 </template>
 
-<script setup>
-import { ref, defineProps, defineEmits, computed } from "vue";
+<script lang="ts">
+import { Vue, Prop, Emit, Component } from "nuxt-property-decorator";
 
-//props
-const props = defineProps({
-  tagHistory: {
-    type: Array,
-    required: true,
-  },
-  tasks: {
-    type: Array,
-    required: true,
-  },
-});
+@Component
+export default class TagFilter extends Vue {
+  //props
+  @Prop({ type: Array, required: true }) tagHistory!: string[];
+  
+  showFilteringEl: boolean = false;
+  searchText: string = "";
+  filteredTags: string[] = [];
+  selectedTags: string = "";
 
-//emit
-const emit = defineEmits(["filterTags"]);
-
-//data()
-const showFilteringEl = ref(false);
-const searchText = ref("");
-const filteredTags = ref([]);
-
-//ref
-const selectedTags = ref(null);
-
-//computed
-const getWidth = computed(() => {
-  const selectedTagsWidth = selectedTags.value.clientWidth;
-  return selectedTagsWidth ? `${selectedTagsWidth}px` : "100%";
-});
-
-//method
-function showFilterTags($event) {
-  $event.preventDefault();
-  if (!props.tagHistory.includes("未選択")) {
-    props.tagHistory.unshift("未選択");
+  //computed
+  get getWidth() {
+    const selectedTagsWidth = (this.$refs.selectedTags as HTMLElement)
+      .clientWidth;
+    return selectedTagsWidth ? `${selectedTagsWidth}px` : "100%";
   }
-  showFilteringEl.value = !showFilteringEl.value;
-  if (!showFilteringEl.value) {
-    searchText.value = "";
-  }
-}
-function handleTagSearch(event) {
-  searchText.value = event.target.value;
-}
-function isTagVisible(tag) {
-  if (searchText.value == "") {
-    return true; //if the text typed in searching filed was none, display all option
-  } else {
-    if (tag.includes(searchText.value)) {
-      return true; //if the text typed in searching filed was included in tagHistory, display the tags
+
+  //method
+  showFilterTags($event: any) {
+    $event.preventDefault();
+    if (!this.tagHistory.includes("未選択")) {
+      this.$emit("addOptionUnselected","未選択")
+    }
+    this.showFilteringEl = !this.showFilteringEl;
+    if (!this.showFilteringEl) {
+      this.searchText = "";
     }
   }
-}
-function toggleFilterTag(tag) {
-  //If selected tag is "未選択（unselected）" is clicked
-  if (tag === "未選択") {
-    if (!filteredTags.value.includes(tag)) {
-      filteredTags.value = [tag]; //If "未選択（unselected）" was not included in selected tags and it was clicked, the content of tagHistory is only "未選択（unselected）"
+  handleTagSearch(event: any) {
+    return (this.searchText = event.target);
+  }
+  isTagVisible(tag: string[]) {
+    if (this.searchText == "") {
+      return true; //if the text typed in searching filed was none, display all option
     } else {
-      filteredTags.value = []; //If "未選択（unselected）" was included in selected tags and it was clicked, the content of tagHistory is none"
-    }
-  } else {
-    //If other than "未選択（unselected）" is clicked
-    if (filteredTags.value.includes(tag)) {
-      filteredTags.value.splice(filteredTags.value.indexOf(tag), 1); //If the option was included in selected tags, it is cleared
-    } else {
-      if (filteredTags.value.includes("未選択")) {
-        filteredTags.value.splice(filteredTags.value.indexOf("未選択"), 1); //If the option wasn't included and "未選択（unselected）" was included in selected tags, "未選択（unselected）" is cleared
+      if (tag.includes(this.searchText)) {
+        return true; //if the text typed in searching filed was included in tagHistory, display the tags
       }
-      filteredTags.value.push(tag);
     }
   }
-}
-function isSelected(tag) {
-  if (showFilteringEl.value === true) {
-    const isSelected = filteredTags.value.includes(tag);
-    return isSelected;
+  toggleFilterTag(tag: string) {
+    //If selected tag is "未選択（unselected）" is clicked
+    if (tag === "未選択") {
+      if (!this.filteredTags.includes(tag)) {
+        this.filteredTags = [tag]; //If "未選択（unselected）" was not included in selected tags and it was clicked, the content of tagHistory is only "未選択（unselected）"
+      } else {
+        this.filteredTags = []; //If "未選択（unselected）" was included in selected tags and it was clicked, the content of tagHistory is none"
+      }
+    } else {
+      //If other than "未選択（unselected）" is clicked
+      if (this.filteredTags.includes(tag)) {
+        this.filteredTags.splice(this.filteredTags.indexOf(tag), 1); //If the option was included in selected tags, it is cleared
+      } else {
+        if (this.filteredTags.includes("未選択")) {
+          this.filteredTags.splice(this.filteredTags.indexOf("未選択"), 1); //If the option wasn't included and "未選択（unselected）" was included in selected tags, "未選択（unselected）" is cleared
+        }
+        this.filteredTags.push(tag);
+      }
+    }
   }
-}
-function filteringTags() {
-  emit("filterTags", filteredTags.value);
-  showFilteringEl.value = !showFilteringEl.value;
+  isSelected(tag: string) {
+    if (this.showFilteringEl === true) {
+      const isSelected = this.filteredTags.includes(tag);
+      return isSelected;
+    }
+  }
+
+  //emit
+  @Emit("filterTags")
+  filteringTags() {
+    this.showFilteringEl = !this.showFilteringEl;
+    return [...this.filteredTags];
+  }
 }
 </script>
 <style scoped>

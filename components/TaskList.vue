@@ -1,7 +1,7 @@
 <template>
   <div class="task_list" v-if="isFiltering">
     <div class="add_task_btn">
-      <button @click="openModal(status, index)">
+      <button @click.stop="openModal(status, index)">
         +<span class="text-success">課題の追加</span>
       </button>
     </div>
@@ -22,7 +22,7 @@
   </div>
   <div v-else class="task_list">
     <div class="add_task_btn">
-      <button @click="openModal(status, index)">
+      <button @click.stop="openModal(status, index)">
         +<span class="text-success">課題の追加</span>
       </button>
     </div>
@@ -50,43 +50,29 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts">
 import draggable from "vuedraggable";
-import { defineProps, defineEmits} from "vue";
+import { Vue, Prop, Emit, Component } from "nuxt-property-decorator";
 
-//props
-const props = defineProps({
-  status: {
-    type: String,
-    required: true,
+@Component({
+  components: {
+    draggable,
   },
-  tasks: {
-    type: Array,
-    required: true,
-  },
-  filteredTasks: {
-    type: Array,
-    required: true,
-  },
-  isFiltering: {
-    type: Boolean,
-    required: true,
-  },
-  index: {
-    type: Number, // Assuming index is a number, change it to the appropriate type if needed
-    required: true,
-  },
-});
+})
+export default class TaskList extends Vue {
+  @Prop({ type: String, required: true }) status!: string;
+  @Prop({ type: Array, required: true }) tasks!: string[];
+  @Prop({ type: Array, required: true }) filteredTasks!: string[];
+  @Prop({ type: Boolean, required: true }) isFiltering!: boolean;
+  @Prop({ type: Number, required: true }) index!: number;
 
-//emit
-const emit = defineEmits(["openModal", "updateTasks"]);
-
-//method
-function openModal(status, index) {
-  emit("openModal", status, index);
-}
-function updateTasks(newList) {
-  emit("updateTasks", newList.slice());
+  //emit
+  openModal(status: string, index: number) {
+    this.$emit("openModal", status, index);
+  }
+  updateTasks(newList: any) {
+    this.$emit("updateTasks", newList.slice());
+  }
 }
 </script>
 <style scoped>

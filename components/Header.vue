@@ -4,6 +4,10 @@
   </div>
 </template>
 <script>
+import { Component, Vue } from "nuxt-property-decorator";
+
+@Component
+export default class Header extends Vue {}
 </script>
 
 <style>

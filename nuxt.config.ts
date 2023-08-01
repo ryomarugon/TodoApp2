@@ -22,6 +22,10 @@ export default {
   /*
   ** Global CSS
   */
+  typescript: {
+    typeCheck: true,
+    ignoreNotFoundWarnings: true
+  },
   css: [
   ],
   /*
@@ -32,7 +36,7 @@ export default {
   /*
   ** Nuxt.js dev-modules
   */
-  buildModules: [
+  buildModules: ['@nuxt/typescript-build'
   ],
   /*
   ** Nuxt.js modules
@@ -46,6 +50,7 @@ export default {
     /*
     ** You can extend webpack config here
     */
-    transpile: ["@vue/server-renderer"]
+    transpile: ["@vue/server-renderer"],
+    extend(config: any, ctx: any) {}
   }
 }
