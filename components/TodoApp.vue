@@ -136,7 +136,6 @@ export default class TodoApp extends Vue {
       this.closeModal();
     }
   }
-
   // Add option "未選択" to {{ option }} in TagFilter component
   addOptionUnselected(option:string){
     this.tagHistory.unshift(option);
@@ -145,7 +144,6 @@ export default class TodoApp extends Vue {
   //Register new tag to tagHistory 
   addNewTag(tag:string){
     this.tagHistory.push(tag);
-    
   }
 
   // There is $emit element in handleSubmit function of Modal component
