@@ -126,7 +126,6 @@ export default class Modal extends Vue {
 
   toggleAddTag(tag: string) {
     const index = this.selectedTags.indexOf(tag);
-    console.log(index);
     if (index !== -1) {
       this.selectedTags.splice(index, 1); // Remove checked tags from selectTags Array
     } else {

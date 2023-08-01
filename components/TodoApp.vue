@@ -106,7 +106,6 @@ export default class TodoApp extends Vue {
   //Set filteredTasks when it was reset
   created() {
     this.filteredTasks = this.tasks_group.map((tasks) => tasks.slice());
-    console.log(this.filteredTasks);
   }
 
   openModal(status: string, index: number) {
@@ -116,21 +115,15 @@ export default class TodoApp extends Vue {
   }
 
   filterTags(selectedTags: string[]) {
-    console.log("selected tags: ", selectedTags);
     if (selectedTags.length === 0 || selectedTags.includes("未選択")) {
       this.isFiltering = false;
-      console.log(this.tasks_group);
-      console.log(this.filteredTags);
-      console.log(this.isFiltering);
     } else {
       this.isFiltering = true;
-      console.log(this.isFiltering);
       this.filteredTasks = this.tasks_group.map((tasks) =>
         tasks.filter((task) => {
           return selectedTags.every((tag) => task.tags.includes(tag));
         })
       );
-      console.log(this.filteredTasks);
     }
     this.filteredTags = selectedTags;
     if (this.showModal) {
@@ -152,14 +145,12 @@ export default class TodoApp extends Vue {
   //Register new tag to tagHistory 
   addNewTag(tag:string){
     this.tagHistory.push(tag);
-    console.log(tag);
+    
   }
 
   // There is $emit element in handleSubmit function of Modal component
   addTask(task: { name: string; tags: string[] }, index: number): void {
-    console.log(this.tasks_group[index]);
     this.tasks_group[index].unshift(task);
-    console.log(this.filteredTags);
     if (
       this.isFiltering &&
       this.filteredTags.every((tag) => task.tags.includes(tag))
@@ -178,7 +169,6 @@ export default class TodoApp extends Vue {
 
   updateTasks(index: number, newList: { name: string; tags: string[] }[]) {
     this.filteredTasks[index] = newList;
-    console.log(newList);
   }
 }
 </script>
