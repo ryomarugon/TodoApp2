@@ -36,7 +36,9 @@ export default {
   /*
   ** Nuxt.js dev-modules
   */
-  buildModules: ['@nuxt/typescript-build'
+  buildModules: [
+    '@nuxt/typescript-build',
+    '@nuxt/typescript-runtime'
   ],
   /*
   ** Nuxt.js modules
@@ -51,6 +53,6 @@ export default {
     ** You can extend webpack config here
     */
     transpile: ["@vue/server-renderer"],
-    extend(config: any, ctx: any) {}
+    // extend(config: any, ctx: any) {}
   }
 }
