@@ -52,7 +52,7 @@
 
 <script lang="ts">
 import draggable from "vuedraggable";
-import { Vue, Prop, Emit, Component } from "nuxt-property-decorator";
+import { Vue, Prop, Component} from "nuxt-property-decorator";
 
 @Component({
   components: {
