@@ -53,6 +53,6 @@ export default {
     ** You can extend webpack config here
     */
     transpile: ["@vue/server-renderer"],
-    extend(config: any, ctx: any) {}
+    // extend(config: any, ctx: any) {}
   }
 }
