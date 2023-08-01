@@ -66,7 +66,6 @@ import { ref, computed } from "vue";
 export default class TodoApp extends Vue {
   status: string = "";
   taskIndex: number = -1;
-  // tagHistory: string[] = ["tag1", "tag2", "tag3","tag4"]; // 初期値を設定
   tasks_status_mark: string[] = [];
   statusList = ["未対応", "処理中", "レビュー中", "完了"];
   showModal: boolean = false;
@@ -96,6 +95,7 @@ export default class TodoApp extends Vue {
   tagHistory = ["tag1", "tag2", "tag3", "tag4"];
   taskStatusColors = ["#ED8077", "#4487C5", "#5EB5A6", "#A1AF2F"];
 
+  //computed
   get roundColor(): string {
     // 現在のindexの値を取得するため、.valueを使う
     const index = Number(this.status);
@@ -109,10 +109,9 @@ export default class TodoApp extends Vue {
   }
 
   openModal(status: string, index: number) {
-    this.taskIndex = index;
     this.selectedStatus = status;
+    this.taskIndex = index;
     this.showModal = true;
-    // event.stopPropagation();
   }
 
   filterTags(selectedTags: string[]) {
@@ -149,8 +148,12 @@ export default class TodoApp extends Vue {
     console.log(this.tasks_group[index]);
     this.tasks_group[index].unshift(task);
     console.log(this.filteredTags);
-    if (this.filteredTags.every((tag) => task.tags.includes(tag))) {
+    if (
+      this.isFiltering &&
+      this.filteredTags.every((tag) => task.tags.includes(tag))
+    ) {
       this.filteredTasks[index].unshift(task);
+      this.filteredTasks = this.filteredTasks.map((tasks, i) => (i === index ? [...tasks, task] : tasks));
     }
   }
 
@@ -158,8 +161,10 @@ export default class TodoApp extends Vue {
     this.showModal = false;
     this.selectedStatus = "";
   }
-  updateTasks(index: number, newList: string[]) {
-    this.$set(this.tasks_group, index, newList);
+
+  updateTasks(index: number, newList: { name: string; tags: string[] }[]) {
+    this.filteredTasks[index] = newList;
+    console.log(newList);
   }
 }
 </script>

@@ -62,7 +62,14 @@
 </template>
 
 <script lang="ts">
-import { Vue, Prop, Watch, Emit, Ref, Component } from "nuxt-property-decorator";
+import {
+  Vue,
+  Prop,
+  Watch,
+  Emit,
+  Ref,
+  Component,
+} from "nuxt-property-decorator";
 
 @Component
 export default class Modal extends Vue {
@@ -107,9 +114,7 @@ export default class Modal extends Vue {
   createTag($event: any): void {
     $event.preventDefault();
     if (!this.tagHistory.includes(this.newTag)) {
-      // this.tagHistory.push(this.newTag);
-      this.$emit("update:tagHistory",[...this.tagHistory, this.newTag]);
-      console.log(this.tagHistory);
+      this.tagHistory.push(this.newTag);
       this.newTag = ""; // Reset the value of newTag input field
       this.sameTagError = "";
       this.selectTagList = true;
@@ -118,8 +123,6 @@ export default class Modal extends Vue {
       this.newTag = "";
     }
   }
-
-
 
   toggleAddTag(tag: string) {
     const index = this.selectedTags.indexOf(tag);
@@ -148,24 +151,24 @@ export default class Modal extends Vue {
     }
   }
 
-  @Ref() modalWrap!: HTMLElement;
-  // If user clicks modal oudside modal_wrap, closeModal function will be called
-  handleOutsideClick(event: any) {
-    if (this.showModal == true && !this.modalWrap.contains(event.target)) {
-      this.closeModal();
-    }
-  }
   closeModal() {
     this.$emit("closeModal");
   }
 
-  onMounted() {
-    // Add addEventListener to outside elements of modal_wrap
+  handleOutsideClick(event: any) {
+    const modalWrap = this.$refs.modalWrap as HTMLElement;
+    const isOutsideModal = !modalWrap.contains(event.target); // モーダル内の要素かどうかを判定
+    console.log(isOutsideModal);
+    if (this.showModal === true && isOutsideModal === true) {
+      this.closeModal();
+    }
+  }
+
+  mounted() {
     document.addEventListener("click", this.handleOutsideClick);
   }
 
-  onBeforeUnmount() {
-    // クリックイベントリスナーを解除
+  beforeDestroy() {
     document.removeEventListener("click", this.handleOutsideClick);
   }
 }

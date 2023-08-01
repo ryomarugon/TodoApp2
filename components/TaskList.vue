@@ -1,7 +1,7 @@
 <template>
   <div class="task_list" v-if="isFiltering">
     <div class="add_task_btn">
-      <button @click="openModal(status, index)">
+      <button @click.stop="openModal(status, index)">
         +<span class="text-success">課題の追加</span>
       </button>
     </div>
@@ -22,7 +22,7 @@
   </div>
   <div v-else class="task_list">
     <div class="add_task_btn">
-      <button @click="openModal(status, index)">
+      <button @click.stop="openModal(status, index)">
         +<span class="text-success">課題の追加</span>
       </button>
     </div>
@@ -54,28 +54,37 @@
 import draggable from "vuedraggable";
 import { Vue, Prop, Emit, Component } from "nuxt-property-decorator";
 
-@Component
+@Component({
+  components: {
+    draggable,
+  },
+})
 export default class TaskList extends Vue {
   @Prop({ type: String, required: true }) status!: string;
   @Prop({ type: Array, required: true }) tasks!: string[];
   @Prop({ type: Array, required: true }) filteredTasks!: string[];
   @Prop({ type: Boolean, required: true }) isFiltering!: boolean;
-  @Prop({
-    type: Number, // Assuming index is a number, change it to the appropriate type if needed
-    required: true,
-  })
-  index!: number;
+  @Prop({ type: Number, required: true }) index!: number;
 
+  //emit
+  // @Emit("openModal")
+  // openModal() {
+  //   return {
+  //     status: this.status,
+  //     index: this.index,
+  //   };
+  // }
 
-//emit
-  @Emit("openModal")
+  // @Emit("updateTasks")
+  // updateTasks(newList: string[]) {
+  //   return newList.slice();
+  // }
   openModal(status: string, index: number) {
-    return [status, index];
-  }
-
-  @Emit("updateTasks")
-  updateTasks(newList: string[]) {
-    return newList.slice();
+    this.$emit("openModal", status, index);
+}
+  updateTasks(newList:any) {
+    console.log(newList);
+    this.$emit("updateTasks", newList.slice());
   }
 }
 </script>
