@@ -67,22 +67,10 @@ export default class TaskList extends Vue {
   @Prop({ type: Number, required: true }) index!: number;
 
   //emit
-  // @Emit("openModal")
-  // openModal() {
-  //   return {
-  //     status: this.status,
-  //     index: this.index,
-  //   };
-  // }
-
-  // @Emit("updateTasks")
-  // updateTasks(newList: string[]) {
-  //   return newList.slice();
-  // }
   openModal(status: string, index: number) {
     this.$emit("openModal", status, index);
-}
-  updateTasks(newList:any) {
+  }
+  updateTasks(newList: any) {
     console.log(newList);
     this.$emit("updateTasks", newList.slice());
   }

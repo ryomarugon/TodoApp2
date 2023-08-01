@@ -48,22 +48,24 @@ import { Vue, Prop, Emit, Component } from "nuxt-property-decorator";
 export default class TagFilter extends Vue {
   //props
   @Prop({ type: Array, required: true }) tagHistory!: string[];
+  
   showFilteringEl: boolean = false;
   searchText: string = "";
   filteredTags: string[] = [];
-  selectedTags: string= "";
+  selectedTags: string = "";
 
   //computed
   get getWidth() {
-      const selectedTagsWidth = (this.$refs.selectedTags as HTMLElement).clientWidth;
-      return selectedTagsWidth ? `${selectedTagsWidth}px` : "100%";
-     }
+    const selectedTagsWidth = (this.$refs.selectedTags as HTMLElement)
+      .clientWidth;
+    return selectedTagsWidth ? `${selectedTagsWidth}px` : "100%";
+  }
 
   //method
   showFilterTags($event: any) {
     $event.preventDefault();
-    if (!this.tagHistory.includes("未選択")) {   
-      this.tagHistory.unshift("未選択");
+    if (!this.tagHistory.includes("未選択")) {
+      this.$emit("addOptionUnselected","未選択")
     }
     this.showFilteringEl = !this.showFilteringEl;
     if (!this.showFilteringEl) {

@@ -114,7 +114,7 @@ export default class Modal extends Vue {
   createTag($event: any): void {
     $event.preventDefault();
     if (!this.tagHistory.includes(this.newTag)) {
-      this.tagHistory.push(this.newTag);
+      this.$emit("addNewTag", this.newTag)
       this.newTag = ""; // Reset the value of newTag input field
       this.sameTagError = "";
       this.selectTagList = true;
@@ -158,7 +158,6 @@ export default class Modal extends Vue {
   handleOutsideClick(event: any) {
     const modalWrap = this.$refs.modalWrap as HTMLElement;
     const isOutsideModal = !modalWrap.contains(event.target); // モーダル内の要素かどうかを判定
-    console.log(isOutsideModal);
     if (this.showModal === true && isOutsideModal === true) {
       this.closeModal();
     }

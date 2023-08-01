@@ -2,7 +2,7 @@
   <div class="container">
     <div class="row">
       <div class="tag_filter">
-        <TagFilter :tagHistory="tagHistory" @filterTags="filterTags" />
+        <TagFilter :tagHistory="tagHistory" @filterTags="filterTags" @addOptionUnselected="addOptionUnselected" />
       </div>
       <div class="task_list_row">
         <div class="col" v-for="(tasks, index) in tasks_group" :key="index">
@@ -44,6 +44,7 @@
         :tagHistory="tagHistory"
         :showModal="true"
         @addTask="addTask"
+        @addNewTag="addNewTag"
       ></Modal>
     </div>
   </div>
@@ -143,6 +144,17 @@ export default class TodoApp extends Vue {
     }
   }
 
+  // Add option "未選択" to {{ option }} in TagFilter component
+  addOptionUnselected(option:string){
+    this.tagHistory.unshift(option);
+  }
+
+  //Register new tag to tagHistory 
+  addNewTag(tag:string){
+    this.tagHistory.push(tag);
+    console.log(tag);
+  }
+
   // There is $emit element in handleSubmit function of Modal component
   addTask(task: { name: string; tags: string[] }, index: number): void {
     console.log(this.tasks_group[index]);
@@ -153,7 +165,9 @@ export default class TodoApp extends Vue {
       this.filteredTags.every((tag) => task.tags.includes(tag))
     ) {
       this.filteredTasks[index].unshift(task);
-      this.filteredTasks = this.filteredTasks.map((tasks, i) => (i === index ? [...tasks, task] : tasks));
+      this.filteredTasks = this.filteredTasks.map((tasks, i) =>
+        i === index ? [...tasks, task] : tasks
+      );
     }
   }
 
