@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "esnext",
+        "types": [
+            "@nuxt/types",
+            "@nuxtjs/axios"
+          ],
+        "strict": true,
+        "esModuleInterop": true,
+        "noImplicitAny": false,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths": {
+            "~/*": [
+                "./*"
+            ]
+        }
+    }
+}
