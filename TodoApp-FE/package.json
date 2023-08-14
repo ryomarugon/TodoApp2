@@ -1,0 +1,31 @@
+{
+  "name": "TodoApp-Laravel",
+  "version": "1.0.0",
+  "description": "My mind-blowing Nuxt.js project",
+  "author": "Ryomarugon",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "@nuxtjs/axios": "^5.13.6",
+    "@nuxtjs/sitemap": "^2.4.0",
+    "@vue/compiler-sfc": "^3.3.4",
+    "node-fetch": "^3.3.2",
+    "node-fetch-native": "^1.2.0",
+    "nuxt": "^2.15.8",
+    "nuxt-property-decorator": "^2.9.1",
+    "vue": "^2.7.10",
+    "vue-server-renderer": "^2.7.10",
+    "vuedraggable": "^2.24.3"
+  },
+  "devDependencies": {
+    "@nuxt/typescript-build": "^2.1.0",
+    "@types/node": "^20.4.5",
+    "@types/vue": "^2.0.0"
+  }
+}
