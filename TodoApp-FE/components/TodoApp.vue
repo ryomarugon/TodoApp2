@@ -59,6 +59,16 @@ import TaskList from "./TaskList.vue";
 import Modal from "./Modal.vue";
 import $axios from "@nuxtjs/axios";
 
+interface Task {
+  name: string;
+  tags: string[];
+  status: number;
+}
+
+interface Tag {
+  name: string;
+}
+
 @Component({
   components: {
     TagFilter,
@@ -72,18 +82,18 @@ export default class TodoApp extends Vue {
   tasks_status_mark: string[] = [];
   statusList = [0, 1, 2, 3];
   showModal: boolean = false;
-  fetchedTasks = [];
-  fetchedTasksByStatus = [];
+  fetchedTasks: Task[] = [];
+  fetchedTasksByStatus: Task[][] = [];
   isFiltering = false;
-  filteredTasks = [];
+  filteredTasks: Task[][] = [];
   selectedTags: string[] = [];
   selectedStatus: number = 0;
-  tagHistory = [];
+  tagHistory: string[] = [];
   taskStatusColors = ["#ED8077", "#4487C5", "#5EB5A6", "#A1AF2F"];
 
   async mounted() {
     try {
-      const getAllTasks = await this.$axios.$get(
+      const getAllTasks = await this.$axios.$get<Task[]>(
         "http://127.0.0.1:8000/api/tasks"
       );
       // name と tags のみを取り出して fetchedTasks に格納
@@ -95,9 +105,9 @@ export default class TodoApp extends Vue {
         this.fetchedTasksByStatus = [...this.fetchedTasksByStatus];
       }
       console.log(this.fetchedTasksByStatus);
-      let getAllTags = await this.$axios.$get("http://127.0.0.1:8000/api/tags");
+      let getAllTags = await this.$axios.$get<Tag[]>("http://127.0.0.1:8000/api/tags");
       console.log(getAllTags);
-    
+
       this.tagHistory = getAllTags.map(tag => tag.name);
       // console.log(this.tagHistory);
     } catch (error) {
@@ -156,14 +166,14 @@ export default class TodoApp extends Vue {
   }
 
   //Register new tag to tagHistory
-  async addTag(tag: {name : string}): Promise<void> {
+  async addTag(tag: Tag): Promise<void> {
     try {
-      const postTag = await this.$axios.$post(
+      const postTag = await this.$axios.$post<Tag>(
         "http://127.0.0.1:8000/api/tags",
         tag
       );
       console.log(postTag);
-      const getAllTags = await this.$axios.$get(
+      const getAllTags = await this.$axios.$get<Tag[]>(
         "http://127.0.0.1:8000/api/tags"
       );
       this.tagHistory = getAllTags.map(tag => tag.name);
@@ -175,20 +185,16 @@ export default class TodoApp extends Vue {
   }
 
   // There is $emit element in handleSubmit function of Modal component
-  async addTask(task: {
-    name: string;
-    tags: string[];
-    status: number;
-  }): Promise<void> {
+  async addTask(task:Task): Promise<void> {
     try {
-      let postTask = await this.$axios.$post(
+      let postTask = await this.$axios.$post<Task>(
         "http://127.0.0.1:8000/api/tasks",
         task
       );
-      const getAllTasks = await this.$axios.$get(
+      const getAllTasks = await this.$axios.$get<Task[]>(
         "http://127.0.0.1:8000/api/tasks"
       );
-      this.fetchedTasks = getAllTasks;
+      this.fetchedTasks = getAllTasks || [];
       // console.log(this.fetchedTasksByStatus);
       for (let i = 0; i < 4; i++) {
         this.fetchedTasksByStatus[i] = this.fetchedTasks.filter(
