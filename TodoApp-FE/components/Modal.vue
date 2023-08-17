@@ -58,13 +58,22 @@
 import { Vue, Prop, Watch, Component } from "nuxt-property-decorator";
 import $axios from "@nuxtjs/axios";
 
+interface Task {
+  name: string;
+  tags: string[];
+  status: number;
+  order: number;
+}
+
 @Component
 export default class Modal extends Vue {
+  
   @Prop({ required: true }) status!: number;
   @Prop({ type: Array, required: true }) tagHistory!: string[];
   @Prop({ type: Number, required: true }) index!: Number;
   @Prop({ type: Boolean, required: true }) showModal!: Boolean;
-
+  @Prop({ type: Array, required: true }) fetchedTasksByStatus!: Task[][];
+  @Prop({ type: Number, required: true }) statusProp!: number;
   //data
   form = {
     task: "",
@@ -78,6 +87,7 @@ export default class Modal extends Vue {
   selectedTags: string[] = [];
   addTagButtonText = "+";
   sameTagError = "";
+  order: number = 0;
 
   //computed
   get addTagHistory(): string[] {
@@ -100,9 +110,9 @@ export default class Modal extends Vue {
   }
   createTag($event: any) {
     $event.preventDefault();
-    const formNewTag={
+    const formNewTag = {
       name: this.newTag
-    }
+    };
     if (!this.tagHistory.includes(formNewTag.name)) {
       this.$emit("addTag", formNewTag);
       this.newTag = ""; // Reset the value of newTag input field
@@ -130,10 +140,12 @@ export default class Modal extends Vue {
   }
 
   handleSubmit() {
+    const order = this.fetchedTasksByStatus[this.status].length;
     const formData = {
       name: this.form.task,
       tags: this.selectedTags,
-      status: this.status
+      status: this.status,
+      order: order
     };
     if (formData.name !== "") {
       // レスポンスの処理（必要なら）

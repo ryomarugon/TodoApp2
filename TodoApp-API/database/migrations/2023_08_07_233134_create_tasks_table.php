@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name');
             $table->json('tags');
             $table->integer('status');
+            $table->integer('order');
             $table->timestamps();
         });
     }

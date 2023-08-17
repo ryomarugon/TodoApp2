@@ -10,7 +10,7 @@ class TaskController extends Controller
 {
     public function index()
     {
-        $tasks = Task::orderBy('id', 'desc')->get();
+        $tasks = Task::orderBy('order', 'asc')->get();
         return response()->json($tasks);
         // $service = new TaskService;
         // $tasks = $service->getAllTasks();
@@ -27,6 +27,7 @@ class TaskController extends Controller
             $task->name = $request->input('name');
             $task->tags = $request->input('tags');
             $task->status = $request->input('status');
+            $task->order = $request->input('order');
             $task->save();
             // return response()->json(['message' => 'Task created successfully']);
             return response()->json($task);
@@ -58,5 +59,26 @@ class TaskController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function updateTasksOrder(Request $request)
+    {
+        try {
+            // リクエストからタスク情報を取得
+            $tasksData = $request->json()->all();
+
+            // タスク情報を更新
+            foreach ($tasksData as $taskData) {
+                $task = Task::find($taskData['id']); // タスクのIDが必要
+                $task->status = $taskData['status'];
+                $task->order = $taskData['order'];
+                $task->save();
+            }
+
+            return response()->json(['message' => 'Task order updated successfully']);
+        } catch (\Exception $e) {
+            // エラーハンドリング
+            return response()->json(['error' => 'An error occurred while updating tasks order.'], 500);
+        }
     }
 }

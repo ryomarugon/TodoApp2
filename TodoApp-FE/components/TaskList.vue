@@ -28,16 +28,18 @@
     </div>
 
     <!-- updateTasksが何の意図かわかりません -->
+    {{ taskPositions }}
     <div class="card_columns">
       <draggable
         :list="tasks"
-        item-key="no"
+        item-key="item=>item.order"
         :animation="700"
         group="taskGroup"
         class="tasks-box"
       >
         <div class="task_item" v-for="element in tasks" :key="element.id">
           <!-- <div> -->
+          <!-- {{ element }} -->
           <p class="task_name">{{ element.name }}</p>
           <ul class="tag_list">
             <li v-for="tagItem in element.tags" :key="tagItem">{{ tagItem }}</li>
@@ -51,7 +53,14 @@
 
 <script lang="ts">
 import draggable from "vuedraggable";
-import { Vue, Prop, Component } from "nuxt-property-decorator";
+import { Vue, Prop, Component, Watch } from "nuxt-property-decorator";
+
+interface Task {
+  name: string;
+  tags: string[];
+  status: number;
+  order: number;
+}
 
 @Component({
   components: {
@@ -60,7 +69,7 @@ import { Vue, Prop, Component } from "nuxt-property-decorator";
 })
 export default class TaskList extends Vue {
   @Prop({ required: true }) status!: number;
-  @Prop({ required: true }) tasks!: [];
+  @Prop({ required: true }) tasks!: Task[];
   @Prop({ required: true }) filteredTasks!: string[];
   @Prop({ required: true }) isFiltering!: boolean;
   @Prop({ required: true }) index!: number;
@@ -69,14 +78,33 @@ export default class TaskList extends Vue {
     this.$emit("openModal", status, index);
   }
 
+  get taskPositions() {
+    return this.tasks.map((task: any, index: number) => {
+      task.order = index;
+      task.status = this.status;
+      return task;
+    });
+  }
+
+  @Watch("tasks")
+  updatedDatabase() {
+    console.log("UPDATE DB WITH THIS DATA: ", this.taskPositions);
+    this.updateTasks();
+  }
+
   //何のため？？
-//  updateTasks() {
-//   const newOrder = this.tasks.map((item: any) => item.id); // New task order
-//   const updatedTasks = this.tasks.map((item: any) => ({
-//     ...item, // Spread the existing task properties
-//   }));
-//   this.$emit("updateTasks", this.index, newOrder, updatedTasks); // Emit order and updated tasks
-// }
+  async updateTasks() {
+    try {
+      // Send the new order and updated tasks to the server for saving
+      const reorderedTasks = await this.$axios.$post(
+        "http://127.0.0.1:8000/api/updateTasksOrder",
+        this.taskPositions
+      );
+      console.log(reorderedTasks);
+    } catch (error) {
+      console.error("Error updating tasks:", error);
+    }
+  }
 }
 </script>
 <style scoped>

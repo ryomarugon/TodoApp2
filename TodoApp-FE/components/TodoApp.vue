@@ -31,8 +31,8 @@
             :filteredTasks="filteredTasks[index]"
             :isFiltering="isFiltering"
             :index="index"
-            @updateTasks="updateTasks(index, $event)"
             @openModal="openModal(statusList[index], index)"
+            draggable
           />
         </div>
       </div>
@@ -45,6 +45,8 @@
         :index="taskIndex"
         :tagHistory="tagHistory"
         :showModal="true"
+        :fetchedTasksByStatus="fetchedTasksByStatus"
+        :statusProp="status"
         @addTask="addTask"
         @addTag="addTag"
       ></Modal>
@@ -63,6 +65,7 @@ interface Task {
   name: string;
   tags: string[];
   status: number;
+  order: number;
 }
 
 interface Tag {
@@ -77,7 +80,7 @@ interface Tag {
   }
 })
 export default class TodoApp extends Vue {
-  status: string = "";
+  status: number = 0;
   taskIndex: number = -1;
   tasks_status_mark: string[] = [];
   statusList = [0, 1, 2, 3];
@@ -96,8 +99,9 @@ export default class TodoApp extends Vue {
       const getAllTasks = await this.$axios.$get<Task[]>(
         "http://127.0.0.1:8000/api/tasks"
       );
-      // name と tags のみを取り出して fetchedTasks に格納
       this.fetchedTasks = getAllTasks;
+      console.log(this.fetchedTasks);
+
       for (let i = 0; i < 4; i++) {
         this.fetchedTasksByStatus[i] = this.fetchedTasks.filter(
           task => task.status === i
@@ -105,7 +109,9 @@ export default class TodoApp extends Vue {
         this.fetchedTasksByStatus = [...this.fetchedTasksByStatus];
       }
       console.log(this.fetchedTasksByStatus);
-      let getAllTags = await this.$axios.$get<Tag[]>("http://127.0.0.1:8000/api/tags");
+      let getAllTags = await this.$axios.$get<Tag[]>(
+        "http://127.0.0.1:8000/api/tags"
+      );
       console.log(getAllTags);
 
       this.tagHistory = getAllTags.map(tag => tag.name);
@@ -185,7 +191,7 @@ export default class TodoApp extends Vue {
   }
 
   // There is $emit element in handleSubmit function of Modal component
-  async addTask(task:Task): Promise<void> {
+  async addTask(task: Task): Promise<void> {
     try {
       let postTask = await this.$axios.$post<Task>(
         "http://127.0.0.1:8000/api/tasks",
@@ -195,7 +201,7 @@ export default class TodoApp extends Vue {
         "http://127.0.0.1:8000/api/tasks"
       );
       this.fetchedTasks = getAllTasks || [];
-      // console.log(this.fetchedTasksByStatus);
+      console.log(this.fetchedTasksByStatus);
       for (let i = 0; i < 4; i++) {
         this.fetchedTasksByStatus[i] = this.fetchedTasks.filter(
           task => task.status === i
@@ -232,11 +238,11 @@ export default class TodoApp extends Vue {
     this.showModal = false;
   }
 
-  //   updateTasks(index: number, newOrder: number[], updatedTasks: any[]) {
-  //   // Update the order of tasks
-  //   this.$set(this.fetchedTasksByStatus, index, updatedTasks);
+  // updateTasks(index: number, newOrder: number[], updatedTasks: any[]) {
+  // Update the order of tasks
+  // this.$set(this.fetchedTasksByStatus,newOrder, updatedTasks);
 
-  //   // Now, the fetchedTasksByStatus array for the corresponding status column is updated with the new order and the updated tasks
+  // Now, the fetchedTasksByStatus array for the corresponding status column is updated with the new order and the updated tasks
   // }
 }
 </script>

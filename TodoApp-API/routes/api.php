@@ -22,4 +22,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 
 Route::apiResource('tasks', TaskController::class);
+Route::post('updateTasksOrder', [TaskController::class, 'updateTasksOrder']);
 Route::apiResource('tags', TagController::class);
