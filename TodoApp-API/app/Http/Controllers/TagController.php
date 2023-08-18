@@ -3,68 +3,29 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Tag;
-// use App\Services\TagService;
+use App\Services\TagService;
 
 class TagController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    protected $tagService;
+
+    public function __construct(TagService $tagService)
+    {
+        $this->tagService = $tagService;
+    }
+
     public function index()
     {
-        $tags=Tag::All();
+        $tags = $this->tagService->getAllTags();
         return response()->json($tags);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        $tag=new Tag();
-        $tag->name=$request->input('name');
-        $tag->save();
+        // バリデーションやリクエストの加工を行う部分
+        // ...
+        $tag = $this->tagService->createTag($request->all());
         return response()->json($tag);
     }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }
+

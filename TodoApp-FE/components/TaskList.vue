@@ -26,9 +26,7 @@
         <span class="text-success">課題の追加</span>
       </button>
     </div>
-
     <!-- updateTasksが何の意図かわかりません -->
-    {{ taskPositions }}
     <div class="card_columns">
       <draggable
         :list="tasks"

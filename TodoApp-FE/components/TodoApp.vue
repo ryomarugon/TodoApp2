@@ -100,8 +100,7 @@ export default class TodoApp extends Vue {
         "http://127.0.0.1:8000/api/tasks"
       );
       this.fetchedTasks = getAllTasks;
-      console.log(this.fetchedTasks);
-
+      
       for (let i = 0; i < 4; i++) {
         this.fetchedTasksByStatus[i] = this.fetchedTasks.filter(
           task => task.status === i

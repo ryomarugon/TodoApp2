@@ -1,16 +1,32 @@
 <?php
 namespace App\Services;
 
+use App\Models\Task;
 use App\Repositories\TaskRepository;
 
-class taskService
+class TaskService
 {
-    // フルーツ一覧取得
-    public function getAllTasks()
+    protected $taskRepository;
+
+    public function __construct(TaskRepository $taskRepository)
     {
-        //fruitRepositoryのfindAllFruitを呼び出し、取得
-        $fruits = TaskRepository::findAllTasks()->get();
-        return $fruits;
+        $this->taskRepository = $taskRepository;
     }
 
+    public function getAllTasks()
+    {
+        return $this->taskRepository->getAllTasks();
+    }
+
+    public function createTask($data)
+    {
+        return $this->taskRepository->createTask($data);
+    }
+
+    public function updateTaskOrder($tasksData)
+    {
+        // ここでタスク情報の更新を行うロジックを記述
+        $this->taskRepository->updateTaskOrder($tasksData);
+    }
 }
+?>
