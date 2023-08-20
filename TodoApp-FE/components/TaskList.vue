@@ -36,13 +36,10 @@
         class="tasks-box"
       >
         <div class="task_item" v-for="element in tasks" :key="element.id">
-          <!-- <div> -->
-          <!-- {{ element }} -->
           <p class="task_name">{{ element.name }}</p>
           <ul class="tag_list">
             <li v-for="tagItem in element.tags" :key="tagItem">{{ tagItem }}</li>
           </ul>
-          <!-- </div> -->
         </div>
       </draggable>
     </div>
@@ -56,7 +53,7 @@ import { Vue, Prop, Component, Watch } from "nuxt-property-decorator";
 interface Task {
   name: string;
   tags: string[];
-  status: number;
+  status: string;
   order: number;
 }
 
@@ -66,13 +63,13 @@ interface Task {
   }
 })
 export default class TaskList extends Vue {
-  @Prop({ required: true }) status!: number;
+  @Prop({ required: true }) status!: string;
   @Prop({ required: true }) tasks!: Task[];
   @Prop({ required: true }) filteredTasks!: string[];
   @Prop({ required: true }) isFiltering!: boolean;
   @Prop({ required: true }) index!: number;
   //emit
-  openModal(status: number, index: number) {
+  openModal(status: string, index: number) {
     this.$emit("openModal", status, index);
   }
 

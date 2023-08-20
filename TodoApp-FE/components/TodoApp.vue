@@ -42,11 +42,11 @@
         @closeModal="closeModal"
         v-if="showModal"
         :status="selectedStatus"
+        :selectedStatusIndex="selectedStatusIndex"
         :index="taskIndex"
         :tagHistory="tagHistory"
         :showModal="true"
         :fetchedTasksByStatus="fetchedTasksByStatus"
-        :statusProp="status"
         @addTask="addTask"
         @addTag="addTag"
       ></Modal>
@@ -64,7 +64,7 @@ import $axios from "@nuxtjs/axios";
 interface Task {
   name: string;
   tags: string[];
-  status: number;
+  status: string;
   order: number;
 }
 
@@ -80,17 +80,18 @@ interface Tag {
   }
 })
 export default class TodoApp extends Vue {
-  status: number = 0;
+  status: string = "";
   taskIndex: number = -1;
   tasks_status_mark: string[] = [];
-  statusList = [0, 1, 2, 3];
+  statusList = ["未対応", "処理中", "レビュー中", "完了"];
   showModal: boolean = false;
   fetchedTasks: Task[] = [];
   fetchedTasksByStatus: Task[][] = [];
   isFiltering = false;
   filteredTasks: Task[][] = [];
   selectedTags: string[] = [];
-  selectedStatus: number = 0;
+  selectedStatus: string = "";
+  selectedStatusIndex: number = 0;
   tagHistory: string[] = [];
   taskStatusColors = ["#ED8077", "#4487C5", "#5EB5A6", "#A1AF2F"];
 
@@ -103,9 +104,10 @@ export default class TodoApp extends Vue {
       
       for (let i = 0; i < 4; i++) {
         this.fetchedTasksByStatus[i] = this.fetchedTasks.filter(
-          task => task.status === i
+          task => task.status === this.statusList[i]
         );
         this.fetchedTasksByStatus = [...this.fetchedTasksByStatus];
+        console.log(this.fetchedTasksByStatus);
       }
       console.log(this.fetchedTasksByStatus);
       let getAllTags = await this.$axios.$get<Tag[]>(
@@ -133,8 +135,9 @@ export default class TodoApp extends Vue {
   //   console.log(newFilteredTasks);
   // }
 
-  openModal(status: number, index: number) {
+  openModal(status: string, index: number) {
     this.selectedStatus = status;
+    this.selectedStatusIndex = index;
     this.showModal = true;
   }
 
@@ -154,16 +157,6 @@ export default class TodoApp extends Vue {
         this.filteredTasks = [...this.filteredTasks];
       }
     }
-    // if (this.showModal) {
-    //   const newTask = {
-    //     name: "",
-    //     tags: selectedTags,
-    //     status: this.selectedStatus // tagsプロパティには空の配列を代入
-    //   };
-    //   console.log(newTask)
-    //   this.addTask(newTask);
-    //   this.closeModal();
-    // }
   }
   // Add option "未選択" to {{ option }} in TagFilter component
   addOptionUnselected(option: string) {
@@ -191,11 +184,13 @@ export default class TodoApp extends Vue {
 
   // There is $emit element in handleSubmit function of Modal component
   async addTask(task: Task): Promise<void> {
+    console.log(task);
     try {
       let postTask = await this.$axios.$post<Task>(
         "http://127.0.0.1:8000/api/tasks",
-        task
+         task
       );
+      console.log(postTask);
       const getAllTasks = await this.$axios.$get<Task[]>(
         "http://127.0.0.1:8000/api/tasks"
       );
@@ -203,7 +198,7 @@ export default class TodoApp extends Vue {
       console.log(this.fetchedTasksByStatus);
       for (let i = 0; i < 4; i++) {
         this.fetchedTasksByStatus[i] = this.fetchedTasks.filter(
-          task => task.status === i
+          task => task.status === this.statusList[i]
         );
         this.fetchedTasksByStatus = [...this.fetchedTasksByStatus];
       }
@@ -221,12 +216,7 @@ export default class TodoApp extends Vue {
         }
       }
 
-      // console.log(this.fetchedTasksByStatus);
       console.log(this.filteredTasks);
-      // console.log(this.fetchedTasksByStatus[0]);
-      // console.log(this.fetchedTasksByStatus[1]);
-      // console.log(this.fetchedTasksByStatus[2]);
-      // console.log(this.fetchedTasksByStatus[3]);
     } catch (error) {
       // エラーハンドリング
       console.error(error);
@@ -236,13 +226,6 @@ export default class TodoApp extends Vue {
   closeModal() {
     this.showModal = false;
   }
-
-  // updateTasks(index: number, newOrder: number[], updatedTasks: any[]) {
-  // Update the order of tasks
-  // this.$set(this.fetchedTasksByStatus,newOrder, updatedTasks);
-
-  // Now, the fetchedTasksByStatus array for the corresponding status column is updated with the new order and the updated tasks
-  // }
 }
 </script>
 

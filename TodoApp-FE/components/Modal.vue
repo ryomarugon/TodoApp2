@@ -61,19 +61,20 @@ import $axios from "@nuxtjs/axios";
 interface Task {
   name: string;
   tags: string[];
-  status: number;
+  status: string;
   order: number;
 }
 
 @Component
 export default class Modal extends Vue {
   
-  @Prop({ required: true }) status!: number;
+  @Prop({ required: true }) status!: string;
+  @Prop({ required: true }) selectedStatusIndex!: number;
   @Prop({ type: Array, required: true }) tagHistory!: string[];
   @Prop({ type: Number, required: true }) index!: Number;
   @Prop({ type: Boolean, required: true }) showModal!: Boolean;
   @Prop({ type: Array, required: true }) fetchedTasksByStatus!: Task[][];
-  @Prop({ type: Number, required: true }) statusProp!: number;
+
   //data
   form = {
     task: "",
@@ -140,13 +141,14 @@ export default class Modal extends Vue {
   }
 
   handleSubmit() {
-    const order = this.fetchedTasksByStatus[this.status].length;
+    const order = this.fetchedTasksByStatus[this.selectedStatusIndex].length;
     const formData = {
       name: this.form.task,
       tags: this.selectedTags,
       status: this.status,
       order: order
     };
+  console.log(formData.status);
     if (formData.name !== "") {
       // レスポンスの処理（必要なら）
       this.$emit("addTask", formData, this.index);
